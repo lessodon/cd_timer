@@ -1,0 +1,59 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>@{{ user.username }} timers</title>
+</head>
+    
+<body>
+    <h1>@{{ user.username }} timers</h1>
+    <a href="{% url 'timer:logout' %}"><button>Troca de usuário (sair)</button></a>
+    <a href="{% url 'timer:timers' %}"><button>Sincronizar</button></a>
+    <br>
+    
+    {% for time in timers %}
+        <p>{{ forloop.counter }} - <span name="days">{{ time.days }}d - <span name="hours">{{ time.hours }}</span>h<span name="mins">{{ time.mins }}</span>m - <span name="secs">{{ time.secs }}</span>s
+        <button onclick="doReset({{ time.pk }});">RESET</button>
+        <button onclick="doDelete({{ time.pk }});">DELETE</button></p>
+    {% endfor %}
+    <br>
+    
+    <a href="{% url 'timer:new_timer' %}"><button>Adicionar</button></a>
+    
+    
+    <script>
+        time_h = document.getElementsByName('hours');
+        time_m = document.getElementsByName('mins');
+        time_s = document.getElementsByName('secs');
+        
+        function update() {
+            for (var i=0; i < time_h.length; i++) {
+                var s = Number(time_s[i].innerHTML);
+                var m = Number(time_m[i].innerHTML);
+                var h = Number(time_h[i].innerHTML);
+
+                var totalSecs = 1 + s + m*60 + h*3600;
+
+                time_h[i].innerHTML = Math.trunc(totalSecs/3600);
+                time_m[i].innerHTML = Math.trunc(totalSecs/60)%60;
+                time_s[i].innerHTML = totalSecs%60;
+            }
+        }
+        setInterval(update, 1000);
+        
+        function doReset(pk) {
+            var SIM = confirm("RESETAR TIMER?");
+            if (SIM)
+                window.location.href = '{% url 'timer:reset_timer' 12345 %}'.replace('12345', pk);
+        }
+        
+        function doDelete(pk) {
+            var SIM = confirm("DELETAR TIMER?");
+            if (SIM)
+                window.location.href = '{% url 'timer:delete_timer' 12345 %}'.replace('12345', pk);
+        }
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,37 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Timer Login</title>
+</head>
+
+<body>
+    <h1>LOGIN</h1>
+    
+    {% if error is not None %}
+    <h3 style="color: red;">Falha ao acessar!</h3>
+        {% if error != '' %}
+        <p><strong>ERRO</strong>: {{ error }}</p>
+        {% endif %}
+    <h5>POSSÍVEIS SOLUÇÕES</p>
+    <ol>
+        <li>Use um nome de usuário diferente se não possuir uma conta (ver rodapé)</li>
+        <li>O nome de usuário deve conter no mínimo 3 caracteres</li>
+        <li>A senha deve conter no mínimo 8 caracteres</li>
+        <li>Caracteres especiais, com exceção de '_' (sobrelinha) e números, não são permitidos no nome de usuário!</li>
+    </ol><br>
+    {% endif %}
+    
+    <h3>Credenciais</h3>
+    <form action="{% url 'timer:login' %}" method="POST">
+        {% csrf_token %}
+        <p>Nome de usuário: <input type="text" name="username" max_length="64"></p>
+        <p>Senha: <input type="password" name="password" max_length="128"></p>
+        <p>Por favor, salve a sua senha! Não existe recuperação de conta!</p>
+        <br>
+        <button type="submit">ENTRAR</button>
+    </form>
+
+    <br>
+    <p>Se você ainda não possui uma conta, tentar entrar com um nome de usuário diferente automaticamente criará uma conta nova.</p>
+</body>
+</html>
