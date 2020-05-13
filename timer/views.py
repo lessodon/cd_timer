@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.template import loader
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound, HttpResponseBadRequest, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseNotFound, HttpResponseBadRequest
+from django.http import HttpResponseForbidden
 from django.urls import reverse
 from django.utils import timezone
 
@@ -79,9 +81,9 @@ def timers(request):
         timers.append({
             'pk': timer.pk,
             'days': delta.days,
-            'hours': hours,
-            'mins': mins,
-            'secs': secs
+            'hours': int(hours),
+            'mins': int(mins),
+            'secs': int(secs)
        })
     
     context = {
