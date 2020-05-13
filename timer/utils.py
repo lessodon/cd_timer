@@ -1,8 +1,13 @@
+"""Classes e funções auxiliares usadas em views.py"""
+
 import uuid
 from hashlib import sha256
 
+from django.template import loader
+
 from .consts import *
 from .models import Session
+
 
 class SessionInterface():
     """Auxilia o gerenciamento de sessão"""
@@ -32,7 +37,17 @@ class SessionInterface():
         self.session.delete()
         request.session['uuid'] = ''
 
-    
+
+def render_page_error(request, title, message = None):
+    """Gera página de erros matadores"""
+    tmpl = loader.get_template('timer/error.html')
+    context = {
+        'title': title,
+        'message': message
+    }
+    return tmpl.render(context, request)
+
+
 def valid_alnum(input, digits=True):
     """Validação de entrada de texto para alfanuméricos e sobrelinha somente"""
     for c in input.lower():
@@ -41,6 +56,7 @@ def valid_alnum(input, digits=True):
                 raise ValueError
         elif c > 'z':
             raise ValueError
+
 
 def valid(username, password):
     """Validação contra hackermans e ruindades"""
@@ -61,6 +77,12 @@ def valid(username, password):
             raise ValueError('password length')
     
 
+class RequestEmulator:
+    """Emulador de objetos request para testar a função get_password()"""
+    def __init__(self):
+        self.POST['password'] = 'abacaxi123'
+    
+
 GET_PASSWORD_FAIL = 'GET_PASSWORD_FAIL'
 def get_password(request):
     """Retorna a senha em hash"""
@@ -69,10 +91,10 @@ def get_password(request):
         password = request.POST['password']
         valid(None, password)
     except (AttributeError, TypeError, KeyError):
-        print(foo + 'invalid argument!')
+        print(foo + 'argumento "request" é inválido!')
         return GET_PASSWORD_FAIL
     except ValueError:
-        print(foo + 'password must have at least 8 characters')
+        print(foo + 'senha deveria ter 8 caracteres ou mais!')
         return GET_PASSWORD_FAIL
 
     hasher = sha256()

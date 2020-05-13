@@ -1,8 +1,7 @@
 from django.shortcuts import render
 from django.template import loader
 from django.http import HttpResponse, HttpResponseRedirect
-from django.http import HttpResponseNotFound, HttpResponseBadRequest
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseNotFound
 from django.urls import reverse
 from django.utils import timezone
 
@@ -38,8 +37,6 @@ def login(request):
             valid(request.POST['username'], request.POST['password'])
         except (TypeError, ValueError) as error:
             return HttpResponseBadRequest(tmpl.render({ 'error': str(error) }, request))
-        except:
-            return HttpResponseBadRequest('Que requisição ridícula, mal feita, horrorosa, trabalho seboso, um digno cocozinho...')
         
         req_uname = request.POST['username']
         req_hpass = get_password(request)
@@ -135,7 +132,9 @@ def reset_timer(request, req_pk):
             raise Timer.DoesNotExist
         
     except Timer.DoesNotExist:
-        return HttpResponseForbidden('O timer não foi encontrado ou é de outro proprietário.')
+        return HttpResponseNotFound(render_page_error(
+            request, 'não encontrado',
+            'O timer não foi encontrado ou é de outro proprietário.'))
     else:
         timer.t_start = timezone.now()
         timer.save()
@@ -159,7 +158,9 @@ def delete_timer(request, req_pk):
             raise Timer.DoesNotExist
         
     except Timer.DoesNotExist:
-        return HttpResponseForbidden('O timer não foi encontrado ou é de outro proprietário.')
+        return HttpResponseNotFound(render_page_error(
+            request, 'não encontrado',
+            'O timer não foi encontrado ou é de outro proprietário.'))
     else:
         timer.delete()
     
