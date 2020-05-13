@@ -1,4 +1,4 @@
-""" Timer app constants """
+""" Constantes usadas por models.py e utils.py para restringir tamanhos de parâmetros """
 
 USERNAME_LEN_MIN = 3
 USERNAME_LEN_MAX = 64

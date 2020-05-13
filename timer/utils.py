@@ -5,9 +5,11 @@ from .consts import *
 from .models import Session
 
 class SessionInterface():
+    """Auxilia o gerenciamento de sessão"""
     session = None
     
     def new(self, user, request):
+        """Inicia uma nova sessão para um usuário já autenticado"""
         suid = str(uuid.uuid1())
         self.session = Session()
         self.session.user = user
@@ -16,6 +18,7 @@ class SessionInterface():
         request.session['uuid'] = suid
     
     def get(self, request):
+        """Retorna a sessão aberta (Session) ou False"""
         try:
             s = Session.objects.get(uuid=request.session['uuid'])
         except:
@@ -25,11 +28,13 @@ class SessionInterface():
         return self.session
     
     def delete(self, request):
+        """Encerra a sessão"""
         self.session.delete()
         request.session['uuid'] = ''
 
     
 def valid_alnum(input, digits=True):
+    """Validação de entrada de texto para alfanuméricos e sobrelinha somente"""
     for c in input.lower():
         if c < 'a' and c != '_':
             if digits == True and (c < '0' or c > '9'):
@@ -38,6 +43,7 @@ def valid_alnum(input, digits=True):
             raise ValueError
 
 def valid(username, password):
+    """Validação contra hackermans e ruindades"""
     if username is not None:
         if type(username) != str:
             raise TypeError('username type')
@@ -57,6 +63,7 @@ def valid(username, password):
 
 GET_PASSWORD_FAIL = 'GET_PASSWORD_FAIL'
 def get_password(request):
+    """Retorna a senha em hash"""
     foo = 'timer.utils.get_password(): '
     try:
         password = request.POST['password']

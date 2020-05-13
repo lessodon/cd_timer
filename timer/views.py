@@ -19,6 +19,7 @@ from .utils import *
 ######################
 
 def index(request):
+    """Manda o cliente para a página de login se a sessão não existir; ou manda ele para a página do usuário (timers)."""
     siface = SessionInterface()
     if siface.get(request) == False:
         return HttpResponseRedirect(reverse('timer:login'))
@@ -27,6 +28,7 @@ def index(request):
 
 
 def login(request):
+    """Tenta iniciar uma sessão; se o usuário não existir, cria a conta com as credenciais inexistentes e inicia a sessão."""
     tmpl = loader.get_template('timer/login.html')
     if request.method == 'GET':
         return HttpResponse(tmpl.render({ 'error': None }, request))
@@ -34,8 +36,10 @@ def login(request):
     else:
         try:
             valid(request.POST['username'], request.POST['password'])
-        except Exception as error:
+        except (TypeError, ValueError) as error:
             return HttpResponseBadRequest(tmpl.render({ 'error': str(error) }, request))
+        except:
+            return HttpResponseBadRequest('Que requisição ridícula, mal feita, horrorosa, trabalho seboso, um digno cocozinho...')
         
         req_uname = request.POST['username']
         req_hpass = get_password(request)
@@ -57,6 +61,7 @@ def login(request):
 
 
 def logout(request):
+    """Encerra a sessão e/ou manda para a página de login"""
     siface = SessionInterface()
     if siface.get(request) != False:
         siface.delete(request)
@@ -65,6 +70,7 @@ def logout(request):
 
 
 def timers(request):
+    """Página do usuário: lista os timers do usuário se este estiver logado"""
     siface = SessionInterface()
     
     if siface.get(request) == False:
@@ -98,28 +104,32 @@ def timers(request):
 #####################
 
 def new_timer(request):
+    """Cria um timer e atualiza a página do usuário"""
     siface = SessionInterface()
     
     try:
         if siface.get(request) == False:
             raise Session.DoesNotExist
-        
-        timer = Timer(user = siface.session.user)
     except Session.DoesNotExist:
         return HttpResponseRedirect(reverse('timer:login'))
     else:
+        timer = Timer(user = siface.session.user)
         timer.t_start = timezone.now()
         timer.save()
     return HttpResponseRedirect(reverse('timer:timers'))
 
 
 def reset_timer(request, req_pk):
+    """Reinicia o timer solicitado"""
     siface = SessionInterface()
     
     try:
         if siface.get(request) == False:
-            raise Timer.DoesNotExist
-        
+            raise Session.DoesNotExist
+    except Session.DoesNotExist:
+        return HttpResponseRedirect(reverse('timer:login'))
+   
+    try:
         timer = Timer.objects.get(pk=req_pk)
         if timer.user != siface.session.user:
             raise Timer.DoesNotExist
@@ -134,12 +144,16 @@ def reset_timer(request, req_pk):
 
 
 def delete_timer(request, req_pk):
+    """Remove o timer solicitado"""
     siface = SessionInterface()
     
     try:
         if siface.get(request) == False:
-            raise Timer.DoesNotExist
-        
+            raise Session.DoesNotExist
+    except Session.DoesNotExist:
+        return HttpResponseRedirect(reverse('timer:login'))
+    
+    try:
         timer = Timer.objects.get(pk=req_pk)
         if timer.user != siface.session.user:
             raise Timer.DoesNotExist
